@@ -10,21 +10,25 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
+        // If user is already authenticated, redirect to dashboard
+        if (Auth::check()) {
+            return redirect('/student/dashboard');
+        }
+        
         return view('auth.login');
     }
 
     public function login(Request $request)
     {
-        // Add rate limiting (5 attempts per minute)
         $key = 'login:' . $request->ip();
         $maxAttempts = 5;
-        $decaySeconds = 60;
+        $decaySeconds = 1800 ;
 
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             $seconds = RateLimiter::availableIn($key);
             
             return back()->withErrors([
-                'email' => 'Too many login attempts. Please try again in ' . ceil($seconds / 60) . ' minutes.',
+                'email' => 'Too many login attempts. Please try again in ' . ceil($seconds / 1800 ) . ' minutes.',
             ]);
         }
         
@@ -35,7 +39,15 @@ class LoginController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            // Check if user is a student
+            if (Auth::user()->role !== 'student') {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'An Error Occurred please approach the administrator.',
+                ]);
+            }
+            
             // Check if user is approved
             if (Auth::user()->stat == 0) {
                 Auth::logout();
@@ -50,7 +62,10 @@ class LoginController extends Controller
             $user->last_login = now();
             $user->save();
             
-            return redirect()->intended('/dashboard');
+            // Regenerate session ID for security
+            $request->session()->regenerate();
+            
+            return redirect()->intended('/student/dashboard');
         }
 
         // Increment login attempts
@@ -67,6 +82,9 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Logged out successfully.');
+        // Clear all session data
+        session()->flush();
+
+        return redirect('/login')->with('status', 'You have been logged out successfully.');
     }
 }

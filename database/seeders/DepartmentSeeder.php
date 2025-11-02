@@ -15,22 +15,22 @@ class DepartmentSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('departments')->insert([
+        DB::table('departments')->updateOrInsert([
+            [
+                'name'=>'Instructor',
+                'description'=>'Teaching and instructional department',
+                'created_at'=>now(),
+                'updated_at'=>now(),
+            ],
             [
                 'name'=>'Administration',
-                'description'=>'Handles IT System and Network Infrastructure',
+                'description'=>'Handles administrative tasks and operations',
                 'created_at'=>now(),
                 'updated_at'=>now(),
             ],
             [
-                'name'=>'Instructors',
-                'description'=>'Manage personnel, hiring and employee welfare',
-                'created_at'=>now(),
-                'updated_at'=>now(),
-            ],
-            [
-                'name'=>'',
-                'description'=>'Responsible for budgeting and accouting',
+                'name'=>'Registrar',
+                'description'=>'Responsible for student records and registration',
                 'created_at'=>now(),
                 'updated_at'=>now(),
             ],

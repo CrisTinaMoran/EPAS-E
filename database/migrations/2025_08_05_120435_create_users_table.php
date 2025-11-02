@@ -12,17 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id(); //Laravel default primary key
+            $table->id(); 
             $table->string('email')->unique();
             $table->string('password');
             $table->string('first_name',50);
             $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
             $table->string('ext_name', 50)->nullable();
+            $table->string('reset_token')->nullable();
+            $table->timestamp('reset_token_expires')->nullable();   
+
             //superadmin, admin, manager, user
-            $table->string('role', 50)->default('user');
-            $table->string('profile_image', 15)->nullable();
+            $table->string('role', 50)->default('student');
+            $table->string('profile_image', 255)->nullable();
             $table->timestamp('last_login')->nullable();
+            
             //1-active 0-inactive
             $table->string('stat')->default(0);
             $table->unsignedBigInteger('department_id')->nullable();

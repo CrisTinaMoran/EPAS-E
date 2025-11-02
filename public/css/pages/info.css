@@ -1,0 +1,15 @@
+/* Add to your info.css or header.css */
+.contact-map-container {
+    position: relative;
+}
+
+/* Hide any broken iframe indicators */
+iframe[src*="google.com/maps"] {
+    border: none !important;
+}
+
+/* Fallback map styling */
+.map-fallback {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}

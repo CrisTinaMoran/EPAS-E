@@ -2,63 +2,75 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'email',
-        'password',
         'first_name',
         'middle_name',
         'last_name',
         'ext_name',
+        'email',
+        'password',
         'role',
+        'department_id',
+        'stat',
+        'student_id',
+        'profile_image',
+        'section',
+        'room_number',
+        'email_verified_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    public function getFullNameAttribute(){
-        $parts =array_filter([
-            $this->first_name ?? '',
-            $this->middle_name ?? '',
-            $this->last_name ?? '',
-            $this->ext_name ?? '',
-        ]);
-        return trim(implode('',$parts));
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'last_login' => 'datetime',
+            'stat' => 'boolean',
+        ];
     }
 
-    public function department(){
+    public function department()
+    {
         return $this->belongsTo(Department::class);
     }
 
-};
+    public function getFullNameAttribute()
+    {
+        $name = "{$this->first_name}";
+        if ($this->middle_name) {
+            $name .= " {$this->middle_name}";
+        }
+        $name .= " {$this->last_name}";
+        if ($this->ext_name) {
+            $name .= " {$this->ext_name}";
+        }
+        return $name;
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
+
+    public function read_announcements()
+    {
+        return $this->belongsToMany(Announcement::class, 'announcement_user')
+                    ->withTimestamps()
+                    ->withPivot('read_at');
+    }
+}

@@ -4,25 +4,24 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use App\Http\View\Composers\AnnouncementComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
+
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
-        if (env('APP_ENV') === 'production') {
-        URL::forceScheme('https');
-    }
+        // Only force HTTPS if explicitly enabled or in production
+        if (env('FORCE_HTTPS', false) || env('APP_ENV') === 'production') {
+            URL::forceScheme('https');
+        }
+
+        View::composer('*', AnnouncementComposer::class);
     }
 }

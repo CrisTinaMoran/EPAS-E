@@ -11,7 +11,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Register global middleware
+        $middleware->web(append: [
+            App\Http\Middleware\SecurityHeaders::class,
+            
+        ]);
+        $middleware->alias([
+            'check.role' => \App\Http\Middleware\CheckRole::class,
+        ]);
+        
+        // You can add alias if needed
+        // $middleware->alias([
+        //     'auth' => \App\Http\Middleware\Authenticate::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

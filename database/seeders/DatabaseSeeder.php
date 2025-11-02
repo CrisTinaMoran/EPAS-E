@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Department;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +26,8 @@ class DatabaseSeeder extends Seeder
         // Call your UserSeeder
         $this->call([
             UserSeeder::class,
+            DepartmentSeeder::class,
+            ModuleSeeder::class,
         ]);
     }
 }
